@@ -201,7 +201,7 @@
               echo "<div id='position".$countPos."'>";
               echo "<p>Year: <input type=\"text\" name=\"year".$countPos."\" value=\"".$row['year']."\">";
               echo "<input type=\"button\" value=\"-\"onclick=\"$('#position".$countPos."').remove();return false;\"></p>";
-              echo "<p><textarea name=\"desc".$countPos."\" rows=\"8\" cols=\"80\">".$row['description']."";
+              echo "<p><textarea name=\"desc".$countPos."\" rows=\"3\" cols=\"80\">".$row['description']."";
               echo "</textarea>";
               echo "</p></div>";
             }
@@ -236,7 +236,7 @@
                     <p>Year: <input type="text" name="year'+countPos+'" value="" /> \
                     <input type="button" value="-" \
                     onclick="$(\'#position'+countPos+'\').remove();return false;"></p> \
-                    <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea>\
+                    <textarea name="desc'+countPos+'" rows="3" cols="80"></textarea>\
                     </div>');
             });
 

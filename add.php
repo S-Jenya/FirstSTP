@@ -39,7 +39,7 @@
 <body>
   
   <div class="container">
-    <p><h1>Dr. Chuck's Profile Add</h1></p>
+    <p><h1>Profile Add</h1></p>
 
     <?php
     
@@ -139,7 +139,7 @@
       <p>Last Name: <input type="text" name="last_name" size="60"> </p>
       <p>Email: <input type="text" name="email" size="30"> </p>
       <p>Headline:</p> <input type="text" name="headline" size="80">  
-      <p>Summary: </p><textarea name="summary" rows="8" cols="80"></textarea>
+      <p>Summary: </p><textarea name="summary" rows="2" cols="80"></textarea>
       <p>Education: <input type="submit" id="addEdu" value="+"></p>
       <p>Position: <input type="submit" id="addPos" value="+">      </p> 
 
@@ -154,8 +154,6 @@
      
     </form>  
    
-  
-
   <script>
     
   countPos = 0;
@@ -178,7 +176,7 @@
               <p>Year: <input type="text" name="year'+countPos+'" value="" /> \
               <input type="button" value="-" \
                   onclick="$(\'#position'+countPos+'\').remove();return false;"></p> \
-              <textarea name="desc'+countPos+'" rows="8" cols="80"></textarea>\
+              <textarea name="desc'+countPos+'" rows="2" cols="80"></textarea>\
               </div>');
       });
 

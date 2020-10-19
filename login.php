@@ -18,7 +18,7 @@
       margin-left: auto;
     }
   </style>
-  <title>Chuck Severance's Login Page</title>
+  <title>Login Page</title>
 </head>
 <body>
   
