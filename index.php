@@ -3,8 +3,10 @@
 <?php if(isset($_COOKIE["login"]) == FALSE): ?>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+ <script
+  src="https://code.jquery.com/jquery-2.2.4.js"
+  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+  crossorigin="anonymous"></script>
   <style>
     body{
       display: flex;
@@ -20,12 +22,16 @@
     }
   </style>
 <link rel="stylesheet" type="text/css" href="style.css" >
-  <title>c80003e2</title>
+  <title>Main page</title>
 </head>
 <body>
 
   <div class="container">
     <p><h1>Registry Page</h1></p>
+        <p><input type="submit" id="btn_test_ajax"  value="TEST AJAX"></p> 
+
+
+
     <?php
       require_once 'connection.php';
       session_start();
@@ -152,7 +158,7 @@
               echo($row['name']);
               echo("</td><td>");
               echo('<a href="edid_institut.php?institution_id='.$row['institution_id'].'">Edit</a> ');
-              echo('<a href="delete_institution.php?institution_id='.$row['institution_id'].'">Delete</a>');
+              echo('<a href="delete_institution.php?institution_id='.$row['institution_id'].' name="btn_inst_del"">Delete</a>');
               echo("</td>");
               echo "<tr>\n";
           }
@@ -162,10 +168,6 @@
       }
       
     ?>
-    <p id="p">two
-      <input type="text" name="one" value="three" title="four">
-      <input type="text" name="five" class="p" value="p">
-    </p>
   </div>
   
 <?php else: ?>
@@ -175,7 +177,17 @@
 <?php endif; ?>
 <script>
  $('#p').hide();
- 
+</script>
+
+<script>
+   $(document).ready(function(){
+      console.log('Document ready called');
+      $('#btn_inst_del').click(function(event){
+        console.log('btn_inst_del click');
+         
+      });
+
+  });
 </script>
 </body>
 </html>

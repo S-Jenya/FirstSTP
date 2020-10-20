@@ -34,20 +34,21 @@
       margin-left: auto;
     }
   </style>
-  <title>Dr. Chuck's Profile Add</title>
+  <title>Добавить карточку</title>
 </head>
 <body>
   
   <div class="container">
-    <p><h1>Profile Add</h1></p>
+    <p><h1>Добавить карточку</h1></p>
 
     <?php
     
       require_once "connection.php";
       require_once "util.php";
       session_start();
-      if (isset($_POST['first_name']) && isset($_POST['last_name']) &&
-       isset($_POST['email']) && isset($_POST['headline']) && isset($_POST['summary'])) {
+      if(isset($_POST['btn_add'])){
+        if (isset($_POST['first_name']) && isset($_POST['last_name']) &&
+        isset($_POST['email']) && isset($_POST['headline']) && isset($_POST['summary'])) {
 
         //$msg = validateprofile();
         $msg = validatePos();
@@ -130,9 +131,11 @@
             $_SESSION['added'] = '+';
             header('Location: index.php');
           } 
-        } 
+        }
+      }
+      
 
-      ?>
+    ?>
 
     <form method="POST">  
       <p>First Name: <input type="text" name="first_name" size="60"></p>
@@ -144,14 +147,15 @@
       <p>Position: <input type="submit" id="addPos" value="+">      </p> 
 
       <div id="edu_fields"></div>
+      <div id="resp"></div>
       <div id="position_fields"></div>
-      <a href="school.php">json</a>
+     
+      <p><input type="button" id="btn_test_ajax"  value="TEST AJAX"></p> 
      
       <p>
-        <input type="submit" value="Add">
+        <input type="submit" name="btn_add"  value="Add">
         <input type="submit" onclick="javascript:history.back(); return false;" value="Cancel"> 
       </p> 
-     
     </form>  
    
   <script>
@@ -180,6 +184,20 @@
               </div>');
       });
 
+        $(document).ready(function(){
+            $('#btn_test_ajax').click(function(){
+                   // alert("click");
+                $.ajax({
+                  url: "institution_data.php",
+                  type: "GET",
+                  dataType: "html", 
+                  success:function(response){
+                    $("#responsecontainer").html(response); 
+                  }
+                });
+            });
+       });
+
        $('#addEdu').click(function(event){
         event.preventDefault();
         if ( countEdu >= 9 ) {
@@ -189,17 +207,30 @@
         countEdu++;
         window.console && console.log("Adding education "+countEdu);
 
-        $('#edu_fields').append(
-            '<div id="edu'+countEdu+'"> \
-            <p>Year: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+        var HTMLcode =  '<div id="edu'+countEdu+'"> \
+            <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
             <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
-            <p>School: <input type="text" size="80" name="edu_school'+countEdu+'" class="school" value="" />\
-            </p></div>'
-        );
+            </p></div>';
 
-        $('.school').autocomplete({
-            source: "school.php"
-        });
+                $.ajax({
+                  url: "school.php",
+                  type: "GET",
+                  dataType: "json", 
+                  success:function(data){
+                    data = JSON.parse(JSON.stringify(data));
+                    HTMLcode += 'Учебное учреждение: <input type="text" name="edu_school'+countEdu+'" list="exampleList">\
+                                    <datalist id="exampleList">';
+                      for(var i = 0; i < data.length; i++){
+                        HTMLcode += '<option value="'+data[i]+'">';
+                      }
+                      HTMLcode +='</datalist>';
+                      $('#edu_fields').append(HTMLcode);
+                  }
+                });
+
+      //  $('.school').autocomplete({
+       //     source: "school.php"
+       // });
 
     });
 

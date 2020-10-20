@@ -42,11 +42,11 @@
   integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
   crossorigin="anonymous"></script>
   
-	<title>Dr. Chuck's Profile Edit</title>
+	<title>Изменить карточку</title>
 </head>
 <body>
 	 <div class="container">
-    <h1>Editing Profile for UMSI</h1>
+    <h1>Изменить карточку</h1>
 
     <?php
 
@@ -181,10 +181,23 @@
              foreach ( $rows as $row ) {
               $countPos++;
               echo "<div id=\"edu".$countPos."\">";
-              echo "<p>Year: <input type=\"text\" name=\"edu_year".$countPos."\" value=\"".$row['year']."\">";
+              echo "<p>Год окончания: <input type=\"text\" name=\"edu_year".$countPos."\" value=\"".$row['year']."\">";
               echo "<input type=\"button\" value=\"-\"onclick=\"$('#edu".$countPos."').remove();return false;\"></p>";
-              echo "<p>School: <input type=\"text\" size=\"80\" name=\"edu_school".$countPos."\" class=\"school ui-autocomplete-input\" value=\"".$row['name']."\" autocomplete=\"off\">";
+              $own_name = $row['name'];
+              echo "Учебное учреждение: 
+              <input type=\"text\" name=\"edu_school".$countPos."\" value=\"".$own_name."\" list=\"exampleList\">  
+                <datalist id=\"exampleList\">";
+              $stmt = $pdo->query('SELECT name FROM institution');
+              while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ) {
+                if( $row['name'] != $own_name ) {
+                  echo "<option value=\"";
+                  echo ($row['name']);
+                  echo "\"></option>";
+                }
+              }
+              echo "</datalist>";
               echo "</p></div>";
+              
             } 
             echo "</div>";
 
@@ -216,9 +229,7 @@
     <script>
       
         countPos = $('#position_fields').children().length;
-           console.log(countPos);
            countEdu = $('#edu_fields').children().length;
-           console.log(countEdu);
 
         $(document).ready(function(){
             window.console && console.log('Document ready called');
@@ -246,18 +257,29 @@
                   alert("Maximum of nine education entries exceeded");
                   return;
               }
+
+               var HTMLcode =  '<div id="edu'+countEdu+'"> \
+                      <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+                      <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
+                      </p></div>';
+
+                $.ajax({
+                  url: "school.php",
+                  type: "GET",
+                  dataType: "json", 
+                  success:function(data){
+                    data = JSON.parse(JSON.stringify(data));
+                    HTMLcode += 'Учебное учреждение: <input type="text" name="edu_school'+countEdu+'" list="exampleList">\
+                                    <datalist id="exampleList">';
+                      for(var i = 0; i < data.length; i++){
+                        HTMLcode += '<option value="'+data[i]+'">';
+                      }
+                      HTMLcode +='</datalist>';
+                      $('#edu_fields').append(HTMLcode);
+                  }
+                });
+
               countEdu++;
-              window.console && console.log("Adding education "+countEdu);
-
-              // Grab some HTML with hot spots and insert into the DOM
-              var source  = $("#edu-template").html();
-              $('#edu_fields').append(source.replace(/@COUNT@/g,countEdu));
-
-              // Add the even handler to the new ones
-              $('.school').autocomplete({
-                  source: "school.php"
-              });
-
           });
 
           $('.school').autocomplete({
@@ -267,14 +289,6 @@
         });
     </script>
 
-    <script id="edu-template" type="text">
-      <div id="edu@COUNT@">
-        <p>Year: <input type="text" name="edu_year@COUNT@" value="" />
-        <input type="button" value="-" onclick="$('#edu@COUNT@').remove();return false;"><br>
-        <p>School: <input type="text" size="80" name="edu_school@COUNT@" class="school" value="" />
-        </p>
-      </div>
-    </script>
   </div>
 </body>
 </html>
