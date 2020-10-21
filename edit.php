@@ -115,16 +115,14 @@
                   if( isset($_POST['edu_year'.$i]) && isset($_POST['edu_school'.$i]) ) {
                      $year = $_POST['edu_year'.$i];
                       $school = $_POST['edu_school'.$i];
+                      echo ($school);
                       $institution_id;
-                      $stmt = $pdo->prepare('SELECT * FROM `institution` WHERE name = :inst_name');
+                      $stmt = $pdo->prepare('SELECT institution_id FROM `institution` WHERE name = :inst_name');
                       $stmt->execute(array( ':inst_name' => $school));
                       $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                      if($row !== false) $institution_id = $row['institution_id'];
-                      if ($row === false) {
-                        $stmt = $pdo->prepare('INSERT INTO `institution` (`name`) VALUES (:inst_name)');
-                        $stmt->execute(array( ':inst_name' =>  $school));
-                        $institution_id = $pdo->lastInsertId();
-                      }
+                      echo (count($row));
+                        $institution_id = $row['institution_id'];
+                      
                        $stmt = $pdo->prepare('INSERT INTO `education` (`profile_id`, `institution_id`, `rank`, `year`) 
                         VALUES (:pid, :inst_id, :rank, :year)');
                        $stmt->execute(array( 
@@ -137,9 +135,9 @@
                   }
               }
 
-                //echo '<pre>';
-               // print_r($_POST);
-                //echo '</pre>';
+                echo '<pre>';
+               print_r($_POST);
+                echo '</pre>';
               $_SESSION['success_upd'] = 'Profile updated';
   	           header('Location: index.php');
               return;
@@ -180,27 +178,25 @@
             $countPos = 0;
              foreach ( $rows as $row ) {
               $countPos++;
+              $nn = $row['name'];
               echo "<div id=\"edu".$countPos."\">";
               echo "<p>Год окончания: <input type=\"text\" name=\"edu_year".$countPos."\" value=\"".$row['year']."\">";
               echo "<input type=\"button\" value=\"-\"onclick=\"$('#edu".$countPos."').remove();return false;\"></p>";
-              $own_name = $row['name'];
               echo "Учебное учреждение: 
-              <input type=\"text\" name=\"edu_school".$countPos."\" value=\"".$own_name."\" list=\"exampleList\">  
-                <datalist id=\"exampleList\">";
+              <SELECT name=\"edu_school".$countPos."\" value=\" ".$row['name']." \" >  ";
               $stmt = $pdo->query('SELECT name FROM institution');
-              while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ) {
-                if( $row['name'] != $own_name ) {
-                  echo "<option value=\"";
-                  echo ($row['name']);
-                  echo "\"></option>";
-                }
+               while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ) {
+                if($nn == $row['name']) {
+                  echo "<option selected=\"selected\" value=\" ".$row['name']." \"> ".$row['name']." ";
+                } else {
+                  echo "<option value=\" ".$row['name']." \"> ".$row['name']." ";
+                } 
               }
-              echo "</datalist>";
+              echo "</SELECT>";
               echo "</p></div>";
               
             } 
             echo "</div>";
-
             $countPos = 0;
             $stmt = $pdo->query("SELECT * FROM `position` 
               WHERE profile_id = ' ".$_GET['profile_id']."' ORDER BY rank");
@@ -230,9 +226,16 @@
       
         countPos = $('#position_fields').children().length;
            countEdu = $('#edu_fields').children().length;
+           console.log(countPos);
+           console.log(countEdu);
+
+           var wasHear = false;
 
         $(document).ready(function(){
             window.console && console.log('Document ready called');
+
+          //  $('input[name="edu_s"]').val("testChange");
+
             $('#addPos').click(function(event){
                 // http://api.jquery.com/event.preventdefault/
                 event.preventDefault();
@@ -251,14 +254,36 @@
                     </div>');
             });
 
+             $('SELECT[name="edu_s"]1111').click(function(event){
+              if(!wasHear) {
+                //event.preventDefault();
+                $.ajax({
+                  url: "school.php",
+                  type: "GET",
+                  dataType: "json", 
+                  success:function(data){
+                    var HTMLcode2 = "";
+                    data = JSON.parse(JSON.stringify(data));
+                      for(var i = 0; i < data.length; i++){
+                        HTMLcode2 += '<option value="'+data[i]+'">';
+                      }
+                      console.log(HTMLcode2);
+                      $('SELECT[name="edu_s"]').append(HTMLcode2);
+                  }
+                });
+              wasHear = true;
+              }
+          });
+
              $('#addEdu').click(function(event){
               event.preventDefault();
               if ( countEdu >= 9 ) {
                   alert("Maximum of nine education entries exceeded");
                   return;
               }
-
-               var HTMLcode =  '<div id="edu'+countEdu+'"> \
+///
+                  countEdu++;
+                var HTMLcode =  '<div id="edu'+countEdu+'"> \
                       <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
                       <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
                       </p></div>';
@@ -269,21 +294,15 @@
                   dataType: "json", 
                   success:function(data){
                     data = JSON.parse(JSON.stringify(data));
-                    HTMLcode += 'Учебное учреждение: <input type="text" name="edu_school'+countEdu+'" list="exampleList">\
-                                    <datalist id="exampleList">';
+                    HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
                       for(var i = 0; i < data.length; i++){
-                        HTMLcode += '<option value="'+data[i]+'">';
+                        HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
                       }
-                      HTMLcode +='</datalist>';
+                      HTMLcode +='</select>';
                       $('#edu_fields').append(HTMLcode);
                   }
                 });
-
-              countEdu++;
-          });
-
-          $('.school').autocomplete({
-              source: "school.php"
+           console.log(countEdu);
           });
 
         });

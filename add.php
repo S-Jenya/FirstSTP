@@ -186,7 +186,6 @@
 
         $(document).ready(function(){
             $('#btn_test_ajax').click(function(){
-                   // alert("click");
                 $.ajax({
                   url: "institution_data.php",
                   type: "GET",
@@ -218,19 +217,14 @@
                   dataType: "json", 
                   success:function(data){
                     data = JSON.parse(JSON.stringify(data));
-                    HTMLcode += 'Учебное учреждение: <input type="text" name="edu_school'+countEdu+'" list="exampleList">\
-                                    <datalist id="exampleList">';
+                      HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
                       for(var i = 0; i < data.length; i++){
-                        HTMLcode += '<option value="'+data[i]+'">';
+                         HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
                       }
-                      HTMLcode +='</datalist>';
+                      HTMLcode +='</select>';
                       $('#edu_fields').append(HTMLcode);
                   }
                 });
-
-      //  $('.school').autocomplete({
-       //     source: "school.php"
-       // });
 
     });
 
