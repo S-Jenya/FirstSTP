@@ -9,6 +9,7 @@
 ?>
 <html lang="en">
 <head>
+   <link rel="stylesheet" href="style.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="script.js"></script>
@@ -17,23 +18,6 @@
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css"> 
-
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
-  <style>
-    body{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container{
-      width: 60%;
-      padding-right: 15px;
-      padding-left: 15px;
-      margin-right: auto;
-      margin-left: auto;
-    }
-  </style>
   <title>Добавить карточку</title>
 </head>
 <body>
@@ -82,24 +66,6 @@
             );
             $profile_id = $pdo->lastInsertId();
 
-            $rank = 1;
-            for($i = 1; $i<=9; $i++){
-              if( !isset($_POST['year'.$i]) ) continue;
-              if( !isset($_POST['desc'.$i]) ) continue;
-              $year = $_POST['year'.$i];
-              $desc = $_POST['desc'.$i];
-              $stmt = $pdo->prepare('INSERT INTO `position` (`position_id`, `profile_id`, `rank`, `year`, `description`) 
-                VALUES (NULL, :pid, :rank, :year, :descc)');
-              $stmt->execute(array( 
-                ':pid' => $profile_id, 
-                ':rank' => $rank, 
-                ':year' => $year, 
-                ':descc' => $desc)
-              );
-
-              $rank++;
-            }
-
             // блок добавление нового места учёбы
             $rank = 1;
             for($i = 1; $i<=9; $i++){
@@ -110,7 +76,7 @@
               $stmt->execute(array( ':inst_name' =>  $inst_name));
               $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-              $institution_id;
+               $institution_id;
               if($row !== false) $institution_id = $row['institution_id'];
               if ($row === false) {
                 $stmt = $pdo->prepare('INSERT INTO `institution` (`name`) VALUES (:inst_name)');
@@ -138,23 +104,23 @@
     ?>
 
     <form method="POST">  
-      <p>First Name: <input type="text" name="first_name" size="60"></p>
-      <p>Last Name: <input type="text" name="last_name" size="60"> </p>
+      <p>Имя: <input type="text" name="first_name" size="60"></p>
+      <p>Фамилия: <input type="text" name="last_name" size="60"> </p>
       <p>Email: <input type="text" name="email" size="30"> </p>
-      <p>Headline:</p> <input type="text" name="headline" size="80">  
-      <p>Summary: </p><textarea name="summary" rows="2" cols="80"></textarea>
-      <p>Education: <input type="submit" id="addEdu" value="+"></p>
-      <p>Position: <input type="submit" id="addPos" value="+">      </p> 
+      <p>Паспортные данные:</p> <input type="text" name="headline" size="80">  
+      <p>Кем и когда выдан: </p><textarea name="summary" rows="2" cols="80"></textarea>
 
+      <p>Данные об образовании:</p>
       <div id="edu_fields"></div>
-      <div id="resp"></div>
-      <div id="position_fields"></div>
-     
-      <p><input type="button" id="btn_test_ajax"  value="TEST AJAX"></p> 
+      <input type="submit" id="addEdu" value="Добавить">
+
+      <div id="responsecontainer"></div>
      
       <p>
-        <input type="submit" name="btn_add"  value="Add">
-        <input type="submit" onclick="javascript:history.back(); return false;" value="Cancel"> 
+        <div class="btn_control">
+          <input type="submit" name="btn_add" value="Сохранить">
+          <input type="submit" onclick="javascript:history.back(); return false;" value="Отмена"> 
+        </div>
       </p> 
     </form>  
    
@@ -162,28 +128,9 @@
     
   countPos = 0;
   countEdu = 0;
-
-  // http://stackoverflow.com/questions/17650776/add-remove-html-inside-div-using-javascript
   $(document).ready(function(){
       console.log('Document ready called');
-      $('#addPos').click(function(event){
-        console.log('Document ready click(function(event');
-          event.preventDefault();
-          if ( countPos >= 9 ) {
-              alert("Maximum of nine position entries exceeded");
-              return;
-          }
-          countPos++;
-          window.console && console.log("Adding position "+countPos);
-          $('#position_fields').append(
-              '<div id="position'+countPos+'"> \
-              <p>Year: <input type="text" name="year'+countPos+'" value="" /> \
-              <input type="button" value="-" \
-                  onclick="$(\'#position'+countPos+'\').remove();return false;"></p> \
-              <textarea name="desc'+countPos+'" rows="2" cols="80"></textarea>\
-              </div>');
-      });
-
+    
         $(document).ready(function(){
             $('#btn_test_ajax').click(function(){
                 $.ajax({
@@ -206,26 +153,25 @@
         countEdu++;
         window.console && console.log("Adding education "+countEdu);
 
-        var HTMLcode =  '<div id="edu'+countEdu+'"> \
-            <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
-            <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
-            </p></div>';
+        var HTMLcode =  '<div class="edu_case">\
+                          <div id="edu'+countEdu+'" style="background-color: #FFF8DC; margin-top: 15px; padding: 10px;"> \
+                            <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+                            <input type="button" value="Удалить" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br></p>';
 
-                $.ajax({
-                  url: "school.php",
-                  type: "GET",
-                  dataType: "json", 
-                  success:function(data){
-                    data = JSON.parse(JSON.stringify(data));
-                      HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
-                      for(var i = 0; i < data.length; i++){
-                         HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
-                      }
-                      HTMLcode +='</select>';
-                      $('#edu_fields').append(HTMLcode);
-                  }
-                });
-
+        $.ajax({
+            url: "school.php",
+            dataType: "json", 
+            success:function(data){
+                data = JSON.parse(JSON.stringify(data));
+                HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
+                for(var i = 0; i < data.length; i++){
+                    HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
+                }
+                HTMLcode +='</select>\
+                          </div></div>';
+                $('#edu_fields').append(HTMLcode);
+            }
+        });
     });
 
   });

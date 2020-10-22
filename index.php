@@ -27,10 +27,7 @@
 <body>
 
   <div class="container">
-    <p><h1>Registry Page</h1></p>
-        <p><input type="submit" id="btn_test_ajax"  value="TEST AJAX"></p> 
-
-
+    <p><h1>Главная страница</h1></p>
 
     <?php
       require_once 'connection.php';

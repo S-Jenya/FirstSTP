@@ -17,11 +17,11 @@
   </style>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Dr. Chuck's Profile View</title>
+	<title>Информация о профиле</title>
 </head>
 <body>
 	 <div class="container">
-    <h1>Profile information</h1>
+    <h1>Информация о профиле</h1>
 
 
     <form method="post">  
@@ -51,21 +51,6 @@
                }
               echo "</ul>";
               } 
-
-             $stmt = $pdo->query("SELECT concat(year, \" \" , description) as result 
-              FROM `position` WHERE profile_id =  ' ".$_GET['profile_id']."'; ");
-             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-             
-            if(count($rows) > 0) {
-              echo "<p>Position</p>";
-              echo "<ul>";
-              foreach ( $rows as $row ) {
-                echo "<li>";
-                echo($row['result']);
-                echo "</li>";
-               }
-             echo "</ul>";
-            }
             
         ?>
       

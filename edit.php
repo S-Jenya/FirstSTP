@@ -1,20 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<style>
-    body{
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .container{
-      width: 60%;
-      padding-right: 15px;
-      padding-left: 15px;
-      margin-right: auto;
-      margin-left: auto;
-    }
-  </style>
+   <link rel="stylesheet" href="style.css">
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
  <link rel="stylesheet"
@@ -88,40 +75,27 @@
   	        	WHERE `profile`.`profile_id` = '".$_GET['profile_id']."'; ");
   	        	$stmt->execute();
 
-              $stmt = $pdo->prepare('DELETE FROM `position` WHERE profile_id = :profile_id');
-              $stmt->execute(array(':profile_id' => $_GET['profile_id']));
-             
-              $rank = 1;
-              for($i = 1; $i<=9; $i++){
-                if( isset($_POST['year'.$i]) && isset($_POST['desc'.$i]) ) {
-                  $year = $_POST['year'.$i];
-                  $desc = $_POST['desc'.$i];
-                  $stmt = $pdo->prepare('INSERT INTO `position` (`profile_id`, `rank`, `year`, `description`) 
-                      VALUES (:pid, :rank, :year, :descc)');
-                  $stmt->execute(array( 
-                      ':pid' => $_GET['profile_id'], 
-                      ':rank' => $rank, 
-                      ':year' => $year, 
-                      ':descc' => $desc)
-                    );
-                  $rank++;
-                } 
-              }
-
               $stmt = $pdo->prepare('DELETE FROM `Education` WHERE profile_id = :profile_id');
               $stmt->execute(array(':profile_id' => $_GET['profile_id']));
               $rank = 1;
+
               for($i = 1; $i<=9; $i++){
-                  if( isset($_POST['edu_year'.$i]) && isset($_POST['edu_school'.$i]) ) {
+
+               // echo("Итерация: ". $i. "\n");
+               // echo($_POST['edu_school'.$i]. "\n");
+                //echo(isset($_POST['edu_school'.$i]). "\n");
+                //echo("---\n");
+
+                  if( isset($_POST['edu_school'.$i])) {
+                  echo("Я в условии\n");
                      $year = $_POST['edu_year'.$i];
                       $school = $_POST['edu_school'.$i];
-                      echo ($school);
                       $institution_id;
                       $stmt = $pdo->prepare('SELECT institution_id FROM `institution` WHERE name = :inst_name');
                       $stmt->execute(array( ':inst_name' => $school));
                       $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                      echo (count($row));
-                        $institution_id = $row['institution_id'];
+                      $institution_id = $row['institution_id'];
+                      echo("ID института: ".$institution_id);
                       
                        $stmt = $pdo->prepare('INSERT INTO `education` (`profile_id`, `institution_id`, `rank`, `year`) 
                         VALUES (:pid, :inst_id, :rank, :year)');
@@ -131,13 +105,14 @@
                           ':rank' => $rank, 
                           ':year' => $year)
                         );
-                        $rank++; 
-                  }
+                  $rank++; 
+                  } 
               }
 
-                echo '<pre>';
-               print_r($_POST);
-                echo '</pre>';
+               // echo '<pre>';
+              // print_r($_POST);
+               // echo '</pre>';
+               // echo ($rank);
               $_SESSION['success_upd'] = 'Profile updated';
   	           header('Location: index.php');
               return;
@@ -159,7 +134,7 @@
             echo "<p>Last Name: <input type=\"text\" name=\"last_name\" size=\"60\" value=\"".$row['last_name']."\">		</p>";
             echo "<p>Email: <input type=\"text\" name=\"email\" size=\"30\" value=\"".$row['email']."\"></p>";
             echo "<p>Headline: </p> <input type=\"text\" name=\"headline\" size=\"80\" value=\"".$row['headline']."\">		</p>";
-            echo "<p>Summary: </p><textarea name=\"summary\" rows=\"8\" cols=\"80\">".$row['summary']."</textarea>";
+            echo "<p>Summary: </p><textarea name=\"summary\" rows=\"2\" cols=\"80\">".$row['summary']."</textarea>";
 
             $stmt = $pdo->prepare("SELECT year, name FROM `education` 
               JOIN institution on education.institution_id = institution.institution_id 
@@ -167,60 +142,52 @@
             $stmt->execute(array( ':id_prof' => $_GET['profile_id']) );
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             echo "<p>";
-            echo "Education: <input type=\"submit\" id=\"addEdu\" value=\"+\">";
-            echo "</p>"; 
-            echo "<div id=\"edu_fields\">";
+            echo "<p>Данные об образовании:</p>";
+            
            // echo "<pre>";
            // print_r($rows);
            // echo "</pre>";
-           
+
 
             $countPos = 0;
              foreach ( $rows as $row ) {
               $countPos++;
               $nn = $row['name'];
-              echo "<div id=\"edu".$countPos."\">";
+              //echo "<div id=\"edu_fields\">";
+              echo "<div class=\"edu_case\" style=\"width: 400px;\">";
+              echo "<div id=\"edu".$countPos."\" style=\"background-color: #FFF8DC; margin-top: 15px; padding: 10px;\">";
               echo "<p>Год окончания: <input type=\"text\" name=\"edu_year".$countPos."\" value=\"".$row['year']."\">";
-              echo "<input type=\"button\" value=\"-\"onclick=\"$('#edu".$countPos."').remove();return false;\"></p>";
+              echo "<input type=\"button\" value=\"Удалить\"onclick=\"$('#edu".$countPos."').remove();return false;\"></p>";
               echo "Учебное учреждение: 
-              <SELECT name=\"edu_school".$countPos."\" value=\" ".$row['name']." \" >  ";
+              <SELECT name=\"edu_school".$countPos."\" value=\"".$row['name']."\" >  ";
               $stmt = $pdo->query('SELECT name FROM institution');
                while ( $row = $stmt->fetch(PDO::FETCH_ASSOC) ) {
                 if($nn == $row['name']) {
-                  echo "<option selected=\"selected\" value=\" ".$row['name']." \"> ".$row['name']." ";
+                  echo "<option selected=\"selected\" value=\"".$row['name']."\">".$row['name']."";
                 } else {
-                  echo "<option value=\" ".$row['name']." \"> ".$row['name']." ";
+                  echo "<option value=\"".$row['name']."\">".$row['name']."";
                 } 
               }
               echo "</SELECT>";
-              echo "</p></div>";
+              echo "</p></div></div>";
+
+              
               
             } 
-            echo "</div>";
-            $countPos = 0;
-            $stmt = $pdo->query("SELECT * FROM `position` 
-              WHERE profile_id = ' ".$_GET['profile_id']."' ORDER BY rank");
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo "<p>";
-            echo "Position: <input type=\"submit\" id=\"addPos\" value=\"+\">";
-            echo "</p>"; 
-            echo "<div id=\"position_fields\">";
-            foreach ( $rows as $row ) {
-              $countPos++;
-              echo "<div id='position".$countPos."'>";
-              echo "<p>Year: <input type=\"text\" name=\"year".$countPos."\" value=\"".$row['year']."\">";
-              echo "<input type=\"button\" value=\"-\"onclick=\"$('#position".$countPos."').remove();return false;\"></p>";
-              echo "<p><textarea name=\"desc".$countPos."\" rows=\"3\" cols=\"80\">".$row['description']."";
-              echo "</textarea>";
-              echo "</p></div>";
-            }
-            echo "</div>";
+             echo "<div id=\"edu_fields\"></div>";
+              echo "<input type=\"submit\" id=\"addEdu\" value=\"Добавить\">";
+           // echo "</div>";
+           
         ?>
        <br>
 
-	    <input type="submit" name="btn_save" value="Save">
-	    <input type="submit" onclick="javascript:history.back(); return false;" value="Cancel">
-
+        <p>
+          <div class="btn_control">
+            <input type="submit" name="btn_save" value="Сохранить">
+            <input type="submit" onclick="javascript:history.back(); return false;" value="Отменить">
+          </div>
+        </p>
+	    
     </form>
     <script>
       
@@ -234,59 +201,18 @@
         $(document).ready(function(){
             window.console && console.log('Document ready called');
 
-          //  $('input[name="edu_s"]').val("testChange");
-
-            $('#addPos').click(function(event){
-                // http://api.jquery.com/event.preventdefault/
-                event.preventDefault();
-                if ( countPos >= 9 ) {
-                    alert("Maximum of nine position entries exceeded");
-                    return;
-                }
-                countPos++;
-                window.console && console.log("Adding position "+countPos);
-                $('#position_fields').append(
-                    '<div id="position'+countPos+'"> \
-                    <p>Year: <input type="text" name="year'+countPos+'" value="" /> \
-                    <input type="button" value="-" \
-                    onclick="$(\'#position'+countPos+'\').remove();return false;"></p> \
-                    <textarea name="desc'+countPos+'" rows="3" cols="80"></textarea>\
-                    </div>');
-            });
-
-             $('SELECT[name="edu_s"]1111').click(function(event){
-              if(!wasHear) {
-                //event.preventDefault();
-                $.ajax({
-                  url: "school.php",
-                  type: "GET",
-                  dataType: "json", 
-                  success:function(data){
-                    var HTMLcode2 = "";
-                    data = JSON.parse(JSON.stringify(data));
-                      for(var i = 0; i < data.length; i++){
-                        HTMLcode2 += '<option value="'+data[i]+'">';
-                      }
-                      console.log(HTMLcode2);
-                      $('SELECT[name="edu_s"]').append(HTMLcode2);
-                  }
-                });
-              wasHear = true;
-              }
-          });
-
              $('#addEdu').click(function(event){
               event.preventDefault();
               if ( countEdu >= 9 ) {
                   alert("Maximum of nine education entries exceeded");
                   return;
               }
-///
-                  countEdu++;
-                var HTMLcode =  '<div id="edu'+countEdu+'"> \
-                      <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
-                      <input type="button" value="-" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
-                      </p></div>';
+              countEdu++;
+              var HTMLcode =  '<div class="edu_case">\
+                                  <div id="edu'+countEdu+'" style="background-color: #FFF8DC; margin-top: 15px; padding: 10px;"> \
+                                    <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+                                    <input type="button" value="Удалить" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
+                                    </p>';
 
                 $.ajax({
                   url: "school.php",
@@ -296,9 +222,10 @@
                     data = JSON.parse(JSON.stringify(data));
                     HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
                       for(var i = 0; i < data.length; i++){
-                        HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
+                        HTMLcode += '<option value="'+data[i]+'">'+data[i]+'';
                       }
-                      HTMLcode +='</select>';
+                      HTMLcode +='</select>\
+                          </div></div>';
                       $('#edu_fields').append(HTMLcode);
                   }
                 });
