@@ -126,10 +126,20 @@
    
   <script>
     
-  countPos = 0;
-  countEdu = 0;
+  countEdu = $('#edu_fields').children().length;
+
+  function btn_del(count) {
+            console.log("Фукция вызвана");
+            $('#edu'+count).remove();
+            countEdu--;
+            console.log("После удаления = " + countEdu);
+            return false;
+        }
+        
   $(document).ready(function(){
       console.log('Document ready called');
+
+       
     
         $(document).ready(function(){
             $('#btn_test_ajax').click(function(){
@@ -145,34 +155,34 @@
        });
 
        $('#addEdu').click(function(event){
-        event.preventDefault();
-        if ( countEdu >= 9 ) {
-            alert("Maximum of nine education entries exceeded");
-            return;
-        }
-        countEdu++;
-        window.console && console.log("Adding education "+countEdu);
-
-        var HTMLcode =  '<div class="edu_case">\
-                          <div id="edu'+countEdu+'" style="background-color: #FFF8DC; margin-top: 15px; padding: 10px;"> \
-                            <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
-                            <input type="button" value="Удалить" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br></p>';
-
-        $.ajax({
-            url: "school.php",
-            dataType: "json", 
-            success:function(data){
-                data = JSON.parse(JSON.stringify(data));
-                HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
-                for(var i = 0; i < data.length; i++){
-                    HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
-                }
-                HTMLcode +='</select>\
-                          </div></div>';
-                $('#edu_fields').append(HTMLcode);
+            event.preventDefault();
+            if ( countEdu >= 9 ) {
+                alert("Максимальное число учреждений 9шт.");
+                return;
             }
+            countEdu++;
+              console.log("После добавления = ", countEdu);
+
+            var HTMLcode =  '<div class="edu_case">\
+                              <div id="edu'+countEdu+'" style="background-color: #FFF8DC; margin-top: 15px; padding: 10px;"> \
+                                <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
+                                <input type="button" value="Удалить" onclick="btn_del('+countEdu+');"><br></p>';
+
+            $.ajax({
+                url: "school.php",
+                dataType: "json", 
+                success:function(data){
+                    data = JSON.parse(JSON.stringify(data));
+                    HTMLcode += 'Учебное учреждение: <select name="edu_school'+countEdu+'">';
+                    for(var i = 0; i < data.length; i++){
+                        HTMLcode += '<option value="'+data[i]+'"> '+data[i]+'';
+                    }
+                    HTMLcode +='</select>\
+                              </div></div>';
+                    $('#edu_fields').append(HTMLcode);
+                }
+            });
         });
-    });
 
   });
 

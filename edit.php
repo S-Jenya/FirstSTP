@@ -150,14 +150,14 @@
 
 
             $countPos = 0;
+              echo "<div id=\"edu_fields\">";
              foreach ( $rows as $row ) {
               $countPos++;
               $nn = $row['name'];
-              //echo "<div id=\"edu_fields\">";
               echo "<div class=\"edu_case\" style=\"width: 400px;\">";
               echo "<div id=\"edu".$countPos."\" style=\"background-color: #FFF8DC; margin-top: 15px; padding: 10px;\">";
               echo "<p>Год окончания: <input type=\"text\" name=\"edu_year".$countPos."\" value=\"".$row['year']."\">";
-              echo "<input type=\"button\" value=\"Удалить\"onclick=\"$('#edu".$countPos."').remove();return false;\"></p>";
+              echo "<input type=\"button\" value=\"Удалить\"onclick=\"btn_del(".$countPos.");\"></p>";
               echo "Учебное учреждение: 
               <SELECT name=\"edu_school".$countPos."\" value=\"".$row['name']."\" >  ";
               $stmt = $pdo->query('SELECT name FROM institution');
@@ -174,7 +174,7 @@
               
               
             } 
-             echo "<div id=\"edu_fields\"></div>";
+             echo "</div>";
               echo "<input type=\"submit\" id=\"addEdu\" value=\"Добавить\">";
            // echo "</div>";
            
@@ -193,10 +193,17 @@
       
         countPos = $('#position_fields').children().length;
            countEdu = $('#edu_fields').children().length;
-           console.log(countPos);
-           console.log(countEdu);
+           console.log("Учреждений загружено = ", countEdu);
 
            var wasHear = false;
+
+        function btn_del(count) {
+            console.log("Фукция вызвана");
+            $('#edu'+count).remove();
+            countEdu--;
+            console.log("После удаления = " + countEdu);
+            return false;
+        }
 
         $(document).ready(function(){
             window.console && console.log('Document ready called');
@@ -204,16 +211,17 @@
              $('#addEdu').click(function(event){
               event.preventDefault();
               if ( countEdu >= 9 ) {
-                  alert("Maximum of nine education entries exceeded");
+                  alert("Максимальное число учреждений 9шт.");
                   return;
               }
               countEdu++;
+          console.log("После добавления = ", countEdu);
               var HTMLcode =  '<div class="edu_case">\
                                   <div id="edu'+countEdu+'" style="background-color: #FFF8DC; margin-top: 15px; padding: 10px;"> \
                                     <p>Год окончания: <input type="text" name="edu_year'+countEdu+'" value="" /> \
-                                    <input type="button" value="Удалить" onclick="$(\'#edu'+countEdu+'\').remove();return false;"><br>\
+                                    <input type="button" value="Удалить" onclick="btn_del('+countEdu+');"><br>\
                                     </p>';
-
+//onclick="$(\'#edu'+countEdu+'\').remove();return false;"
                 $.ajax({
                   url: "school.php",
                   type: "GET",
@@ -229,7 +237,6 @@
                       $('#edu_fields').append(HTMLcode);
                   }
                 });
-           console.log(countEdu);
           });
 
         });
